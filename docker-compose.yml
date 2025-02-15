@@ -1,0 +1,22 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: senha_segura
+      POSTGRES_DB: stock
+    ports:
+      - "5432:5432"
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: senha_segura
+      DB_NAME: stock
+      DB_PORT: 5432
