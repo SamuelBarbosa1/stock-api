@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 type Product struct {
@@ -108,10 +111,25 @@ func (r *Repository) GetAllProducts() ([]Product, error) {
 }
 
 func main() {
-	// Configuração do banco de dados
-	db, err := pgxpool.Connect(context.Background(), "postgres://postgres:minha_senha@localhost:5432/stock")
+	// Carrega as variáveis de ambiente do arquivo .env
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatal("Erro ao carregar o arquivo .env")
+	}
+
+	// Configuração do banco de dados usando variáveis de ambiente
+	dbURL := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
+	)
+
+	db, err := pgxpool.Connect(context.Background(), dbURL)
+	if err != nil {
+		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
 	}
 	defer db.Close()
 
